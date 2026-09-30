@@ -4,11 +4,14 @@
 [![Package Manager: uv](https://img.shields.io/badge/managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tests: Pytest](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
+[![Guide: Interview Prep](https://img.shields.io/badge/interview%20guide-ready-orange.svg)](INTERVIEW_PREP_GUIDE.md)
 
 A production-grade classical machine learning pipeline for financial fraud detection under extreme class imbalance (~1.5% fraud rate). Built to demonstrate:
 1. **Strict temporal (Out-of-Time) validation** to eliminate data leakage.
 2. **Business-aligned metrics** (PR-AUC, Recall @ 90% Precision) over misleading headline accuracy.
 3. **Cost-sensitive optimization** that minimizes expected monetary loss rather than using an arbitrary `0.5` decision cutoff.
+
+> 📖 **Deep Dive Available:** Check out the [Interview Preparation & System Architecture Guide](INTERVIEW_PREP_GUIDE.md) for detailed mathematical definitions, Q&A, and technical talking points.
 
 ---
 
