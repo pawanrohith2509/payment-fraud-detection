@@ -89,12 +89,16 @@ cd payment-fraud-detection
 # Run the complete end-to-end benchmark (data gen, split, training, evaluation)
 uv run python scripts/run_baseline_experiment.py
 
+# Run the live real-time transaction scoring showcase
+uv run payment-fraud-detection
+
 # Run the unit test suite
 uv run pytest
 ```
 
 ---
 
-## 6. Next Roadmap Step
+## 6. Next Roadmap Steps
 
+- **[Production Upgrade Roadmap](PRODUCTION_ROADMAP.md):** Deep-dive architecture notes for upgrading from the offline benchmark to a **stateful feature pipeline** (carrying entity velocity across temporal splits without leakage) and a **real-time tri-state decisioning engine (`ALLOW` / `CHALLENGE` / `BLOCK`)** with asynchronous feedback loops.
 - **Project 2 (Next Milestone):** Graph-based Mule & AML Detection using Graph Neural Networks (PyG / GraphSAGE / GAT) on transaction network graphs, using this tabular benchmark as the baseline to beat.

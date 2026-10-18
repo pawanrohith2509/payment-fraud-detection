@@ -208,3 +208,26 @@ $$T^* = \arg\min_T \left[ FN(T) \cdot C_{FN} + FP(T) \cdot C_{FP} \right]$$
 > 1. **Default 0.5 Thresholding:** At 0.5, tree models under-alerted on high-risk transfers, causing unnecessary financial chargeback losses. Threshold calibration aligned to the business cost ratio was necessary.
 > 2. **Standard Linear Models:** Standardized Logistic Regression struggled with non-linear feature interactions (such as the interaction between transaction type, balance ratio, and time of day), achieving only 0.687 PR-AUC compared to 0.905+ on tree models.
 > 3. **Random Splits:** Random train/val splitting masked temporal drift, which is why an Out-of-Time split was instituted."
+
+---
+
+### Q7: What is the subtle production flaw with calculating velocity via `df.groupby().cumcount()` across temporal splits, and how do you solve it?
+> **Answer:**  
+> "In prototype code, calculating `df.groupby('nameOrig').cumcount()` inside `fe.transform(val_df)` resets the counter to 0 for validation and test splits. If Account A had 3 transactions during the training period, transaction 4 in the validation window erroneously appears as count 0 instead of count 3.  
+> 
+> Simply computing `cumcount()` across the entire un-split dataset is dangerous because global operations can introduce subtle temporal leakage. In a true production pipeline, we solve this with:
+> 1. **Stateful Transformers:** Carrying forward an entity state dictionary chronologically across splits (`train -> val -> test`).
+> 2. **Sliding Windows:** Calculating velocity over fixed physical windows (e.g. 10m, 1h, 24h) rather than unbounded lifetime counts.
+> 3. **Online Feature Store (Redis/Feast):** In live serving, maintaining atomic counters (`INCR`, `EXPIRE`) to guarantee low-latency (<10ms) state retrieval."
+
+---
+
+### Q8: How does this offline ML benchmark translate into a live real-time payment serving system?
+> **Answer:**  
+> "An offline benchmark trains models on historical batches and optimizes thresholds. In production (such as a UPI or card switch):
+> 1. **Ingestion & Feature Service:** Incoming transactions hit an API gateway and query an online feature store (Redis) for real-time velocity and recipient risk scores within a 15ms SLA.
+> 2. **Scoring & Tri-State Decision Engine:** The ML model outputs a fraud probability, and a decision engine executes a tri-state policy:
+>    - $P < 0.15$: **ALLOW** (instant frictionless approval)
+>    - $0.15 \le P < 0.85$: **REVIEW / CHALLENGE** (step-up 2FA/OTP or manual investigation)
+>    - $P \ge 0.85$: **BLOCK** (hard stop to prevent irreversible fund flight)
+> 3. **Asynchronous Feedback Loop:** Confirmed analyst reviews and delayed chargebacks (T+30 to 90 days) are fed into a feature store cold lake, monitoring for feature/concept drift to trigger automated model retraining."
